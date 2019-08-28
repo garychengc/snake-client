@@ -1,4 +1,4 @@
-const {MOVE_UP_KEY, MOVE_DOWN_KEY, MOVE_RIGHT_KEY, MOVE_LEFT_KEY, MESSAGE} = require('./constants')
+const {MOVE_KEY, MESSAGE} = require('./constants')
 let connection;
 let interval;
 let direction;
@@ -15,35 +15,22 @@ const setupInput = function(conn) {
 
 const handleUserInput = function() {
   const stdin = process.stdin;
-  direction = MOVE_LEFT_KEY;
+  direction = MOVE_KEY.left;
+  let command;
 
   stdin.on("data", key => {
-    if (key === MOVE_UP_KEY && direction !== MOVE_DOWN_KEY) {
+
+    if ((key === MOVE_KEY.up && direction !== MOVE_KEY.down) || (key === MOVE_KEY.down && direction !== MOVE_KEY.up) ||  (key === MOVE_KEY.left && direction !== MOVE_KEY.right) || (key === MOVE_KEY.right && direction !== MOVE_KEY.left)) {
       clearInterval(interval);
       direction = key;
+
+      for (let value in MOVE_KEY) {
+        if (MOVE_KEY[value] === key) {
+          command = value;
+        }
+      }
       interval = setInterval(() => {
-        connection.write("Move: up");
-      }, 100);
-    }
-    if (key === MOVE_DOWN_KEY && direction !== MOVE_UP_KEY) {
-      clearInterval(interval);
-      direction = key;
-      interval = setInterval(() => {
-        connection.write("Move: down");
-      }, 100);
-    }
-    if (key === MOVE_LEFT_KEY && direction !== MOVE_RIGHT_KEY) {
-      clearInterval(interval);
-      direction = key;
-      interval = setInterval(() => {
-        connection.write("Move: left");
-      }, 100);
-    }
-    if (key === MOVE_RIGHT_KEY && direction !== MOVE_LEFT_KEY) {
-      clearInterval(interval);
-      direction = key;
-      interval = setInterval(() => {
-        connection.write("Move: right");
+        connection.write(`Move: ${command}`);
       }, 100);
     }
 
