@@ -1,7 +1,8 @@
-const {MOVE_KEY, MESSAGE} = require('./constants')
+const { MOVE_KEY, MESSAGE } = require("./constants");
 let connection;
 let interval;
 let direction;
+let command;
 
 const setupInput = function(conn) {
   connection = conn;
@@ -15,18 +16,22 @@ const setupInput = function(conn) {
 
 const handleUserInput = function() {
   const stdin = process.stdin;
-  direction = MOVE_KEY.left;
-  let command;
+  direction = MOVE_KEY.LEFT;
 
   stdin.on("data", key => {
+    if(key === direction) return;
 
-    if ((key === MOVE_KEY.up && direction !== MOVE_KEY.down) || (key === MOVE_KEY.down && direction !== MOVE_KEY.up) ||  (key === MOVE_KEY.left && direction !== MOVE_KEY.right) || (key === MOVE_KEY.right && direction !== MOVE_KEY.left)) {
+    if (
+      (key === MOVE_KEY.UP && direction !== MOVE_KEY.DOWN) ||
+      (key === MOVE_KEY.DOWN && direction !== MOVE_KEY.UP) ||
+      (key === MOVE_KEY.LEFT && direction !== MOVE_KEY.RIGHT) ||
+      (key === MOVE_KEY.RIGHT && direction !== MOVE_KEY.LEFT)) {
       clearInterval(interval);
       direction = key;
 
       for (let value in MOVE_KEY) {
         if (MOVE_KEY[value] === key) {
-          command = value;
+          command = value.toLowerCase();
         }
       }
       interval = setInterval(() => {
@@ -38,9 +43,8 @@ const handleUserInput = function() {
       connection.write(`Say: ${MESSAGE[key]}`);
     }
 
-
     if (key === "\u0003") {
-      console.log("Thanks!");
+      console.log("Thanks for playing this amazing game!");
       process.exit();
     }
   });
